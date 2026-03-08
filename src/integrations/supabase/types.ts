@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      daily_data: {
+        Row: {
+          checkins: string[] | null
+          date: string
+          habits_done: string[] | null
+          id: string
+          journal: string | null
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          checkins?: string[] | null
+          date: string
+          habits_done?: string[] | null
+          id?: string
+          journal?: string | null
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          checkins?: string[] | null
+          date?: string
+          habits_done?: string[] | null
+          id?: string
+          journal?: string | null
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      habits: {
+        Row: {
+          created_at: string | null
+          icon: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          icon: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          icon?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      logs: {
+        Row: {
+          category: string
+          created_at: string | null
+          id: string
+          text: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          id?: string
+          text: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          id?: string
+          text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
