@@ -1,10 +1,11 @@
-import { Home, Target, BookOpen, BarChart3 } from "lucide-react";
+import { Home, Target, BookOpen, Sparkles, BarChart3 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const links = [
   { to: "/", icon: Home, label: "Home" },
   { to: "/habits", icon: Target, label: "Habits" },
   { to: "/journal", icon: BookOpen, label: "Journal" },
+  { to: "/insights", icon: Sparkles, label: "Insights" },
   { to: "/progress", icon: BarChart3, label: "Progress" },
 ];
 
@@ -18,7 +19,7 @@ export function BottomNav() {
             to={to}
             end={to === "/"}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-0.5 px-3 py-1.5 text-xs transition-colors ${
+              `flex flex-col items-center gap-0.5 px-2 py-1.5 text-[10px] transition-colors ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`
             }
