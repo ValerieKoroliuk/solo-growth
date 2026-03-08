@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Library, Trash2 } from "lucide-react";
+import { Library, Trash2, ListPlus } from "lucide-react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import {
   type CaptureItem,
