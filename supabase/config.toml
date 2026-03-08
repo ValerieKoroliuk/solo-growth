@@ -1,0 +1,7 @@
+project_id = "akficuolzpdttkbukpsk"
+
+[functions.ai-coach]
+verify_jwt = false
+
+[functions.daily-insights]
+verify_jwt = false
