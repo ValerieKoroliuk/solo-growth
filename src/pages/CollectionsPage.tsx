@@ -132,12 +132,33 @@ export default function CollectionsPage() {
                   </div>
                 )}
               </div>
-              <button
-                onClick={() => remove(item.id)}
-                className="mt-1 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
+              <div className="flex flex-col items-center gap-1">
+                <div className="relative">
+                  <button
+                    onClick={() => setShowListPicker(showListPicker === item.id ? null : item.id)}
+                    className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                    title="Add to list"
+                  >
+                    <ListPlus className="h-3.5 w-3.5" />
+                  </button>
+                  {showListPicker === item.id && (
+                    <div className="absolute right-0 top-8 z-10 w-48 rounded-xl border border-border bg-card p-1.5 shadow-lg">
+                      {lists.map((list) => (
+                        <button key={list.id} onClick={() => addToList(item.id, list.id)} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs hover:bg-muted">
+                          <span>{list.icon}</span>
+                          <span className="text-foreground">{list.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => remove(item.id)}
+                  className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
             </div>
           ))}
         </div>
