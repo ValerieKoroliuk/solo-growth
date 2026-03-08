@@ -30,6 +30,8 @@ export default function HomePage() {
   const [data, setData] = useLocalStorage<SoloData>("solo-data", {});
   const [habits] = useLocalStorage<Habit[]>("solo-habits", []);
   const [captures] = useLocalStorage<CaptureItem[]>("solo-captures", []);
+  const [goals] = useLocalStorage<Goal[]>("solo-goals", []);
+  const activeGoals = goals.filter((g) => g.status === "active").slice(0, 2);
   const [customInput, setCustomInput] = useState("");
   const [chatInput, setChatInput] = useState("");
   const [showChat, setShowChat] = useState(false);
