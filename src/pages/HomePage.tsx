@@ -1,12 +1,17 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Check, Plus, Sparkles, MessageCircle, Send, Lightbulb, Zap, Globe } from "lucide-react";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAICoach } from "@/hooks/useAICoach";
 import { useInsights } from "@/hooks/useInsights";
-import { useHabits } from "@/hooks/useHabits";
-import { useDailyData } from "@/hooks/useDailyData";
-import { useDailyDataRange } from "@/hooks/useDailyData";
 import { SoloScoreRing } from "@/components/SoloScoreRing";
-import { getTodayKey, calculateScore, getStreak } from "@/lib/solo-utils";
+import {
+  getTodayKey,
+  emptyDay,
+  calculateScore,
+  getStreak,
+  type SoloData,
+  type Habit,
+} from "@/lib/solo-utils";
 
 const defaultCheckins = [
   { id: "study", label: "Studied", emoji: "📚" },
@@ -19,49 +24,47 @@ const defaultCheckins = [
 
 export default function HomePage() {
   const today = getTodayKey();
-  const { habits } = useHabits();
-  const { dayData, updateDay } = useDailyData(today);
-  const { data: rangeData } = useDailyDataRange();
+  const [data, setData] = useLocalStorage<SoloData>("solo-data", {});
+  const [habits] = useLocalStorage<Habit[]>("solo-habits", []);
   const [customInput, setCustomInput] = useState("");
   const [chatInput, setChatInput] = useState("");
   const [showChat, setShowChat] = useState(false);
 
+  const dayData = data[today] || emptyDay();
   const score = calculateScore(dayData, habits.length);
-  const streak = rangeData ? getStreak(rangeData) : 0;
+  const streak = getStreak(data, habits);
 
   const { message: coachMessage, loading: coachLoading, getCoachMessage } = useAICoach();
   const { data: insightsData, fetchInsights } = useInsights();
 
-  // Fetch once on mount using ref guard
-  const initRef = useRef(false);
+  // Fetch daily focus and coach message on mount
   useEffect(() => {
-    if (initRef.current) return;
-    initRef.current = true;
     fetchInsights();
     getCoachMessage({
-      habits: dayData.habits_done,
+      habits: dayData.habits,
       checkins: dayData.checkins,
       journal: dayData.journal,
       streak,
       score,
     });
-  }, [fetchInsights, getCoachMessage, dayData, streak, score]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const toggleCheckin = async (id: string) => {
+  const toggleCheckin = (id: string) => {
     const current = dayData.checkins.includes(id)
       ? dayData.checkins.filter((c) => c !== id)
       : [...dayData.checkins, id];
-    const newScore = calculateScore({ ...dayData, checkins: current }, habits.length);
-    await updateDay({ ...dayData, checkins: current, score: newScore });
+    const updated = { ...dayData, checkins: current };
+    updated.score = calculateScore(updated, habits.length);
+    setData({ ...data, [today]: updated });
   };
 
-  const addCustom = async () => {
+  const addCustom = () => {
     if (!customInput.trim()) return;
     const id = `custom-${customInput.trim().toLowerCase().replace(/\s+/g, "-")}`;
     if (!dayData.checkins.includes(id)) {
-      const checkins = [...dayData.checkins, id];
-      const newScore = calculateScore({ ...dayData, checkins }, habits.length);
-      await updateDay({ ...dayData, checkins, score: newScore });
+      const updated = { ...dayData, checkins: [...dayData.checkins, id] };
+      updated.score = calculateScore(updated, habits.length);
+      setData({ ...data, [today]: updated });
     }
     setCustomInput("");
   };
@@ -72,7 +75,7 @@ export default function HomePage() {
     setChatInput("");
     await getCoachMessage(
       {
-        habits: dayData.habits_done,
+        habits: dayData.habits,
         checkins: dayData.checkins,
         journal: dayData.journal,
         streak,
@@ -84,6 +87,7 @@ export default function HomePage() {
 
   return (
     <div className="animate-fade-in space-y-6">
+      {/* Greeting */}
       <div className="text-center">
         <p className="text-sm text-muted-foreground">
           {new Date().toLocaleDateString("en", { weekday: "long", month: "long", day: "numeric" })}
@@ -91,10 +95,12 @@ export default function HomePage() {
         <h2 className="mt-1 font-display text-2xl text-foreground">Your Solo Time</h2>
       </div>
 
+      {/* Score */}
       <div className="flex flex-col items-center gap-2">
         <SoloScoreRing score={score} />
       </div>
 
+      {/* Daily Focus */}
       {insightsData?.daily_focus && (
         <div className="space-y-2">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Today's Focus</h3>
@@ -114,6 +120,7 @@ export default function HomePage() {
         </div>
       )}
 
+      {/* AI Coach */}
       <div className="solo-card space-y-3">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15">
@@ -131,7 +138,7 @@ export default function HomePage() {
         ) : (
           <p className="text-sm italic text-muted-foreground">Your coach is ready when you are.</p>
         )}
-
+        
         {showChat ? (
           <div className="flex gap-2">
             <input
@@ -150,12 +157,16 @@ export default function HomePage() {
             </button>
           </div>
         ) : (
-          <button onClick={() => setShowChat(true)} className="text-xs font-medium text-primary hover:underline">
+          <button
+            onClick={() => setShowChat(true)}
+            className="text-xs font-medium text-primary hover:underline"
+          >
             Chat with your coach →
           </button>
         )}
       </div>
 
+      {/* Daily Check-in */}
       <div>
         <h3 className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-foreground">
           <Sparkles className="h-4 w-4 text-primary" />
@@ -182,6 +193,7 @@ export default function HomePage() {
           })}
         </div>
 
+        {/* Custom checkin */}
         <div className="mt-3 flex gap-2">
           <input
             value={customInput}
@@ -190,7 +202,10 @@ export default function HomePage() {
             placeholder="Add your own..."
             className="flex-1 rounded-xl border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
-          <button onClick={addCustom} className="rounded-xl bg-primary px-3 py-2 text-primary-foreground transition-colors hover:bg-primary/90">
+          <button
+            onClick={addCustom}
+            className="rounded-xl bg-primary px-3 py-2 text-primary-foreground transition-colors hover:bg-primary/90"
+          >
             <Plus className="h-4 w-4" />
           </button>
         </div>

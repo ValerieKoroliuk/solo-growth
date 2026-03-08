@@ -1,36 +1,35 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus, X, Send } from "lucide-react";
-import { useLogs } from "@/hooks/useLogs";
-import { logCategories, type LogCategory } from "@/lib/solo-utils";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { logCategories, type LogEntry, type LogCategory } from "@/lib/solo-utils";
 
 export function QuickLog() {
   const [open, setOpen] = useState(false);
-  const { addLog } = useLogs();
+  const [logs, setLogs] = useLocalStorage<LogEntry[]>("solo-logs", []);
   const [category, setCategory] = useState<LogCategory>("note");
   const [text, setText] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open, category]);
 
-  const submit = async () => {
-    if (!text.trim() || submitting) return;
-    setSubmitting(true);
-    try {
-      await addLog({ category, text: text.trim() });
-      setText("");
-      setOpen(false);
-    } catch {
-      // ignore
-    } finally {
-      setSubmitting(false);
-    }
+  const submit = () => {
+    if (!text.trim()) return;
+    const entry: LogEntry = {
+      id: `log-${Date.now()}`,
+      category,
+      text: text.trim(),
+      timestamp: new Date().toISOString(),
+    };
+    setLogs((prev) => [entry, ...prev]);
+    setText("");
+    setOpen(false);
   };
 
   return (
     <>
+      {/* Floating button */}
       <button
         onClick={() => setOpen(true)}
         className="fixed bottom-20 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95"
@@ -39,12 +38,14 @@ export function QuickLog() {
         <Plus className="h-5 w-5" />
       </button>
 
+      {/* Modal overlay */}
       {open && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center bg-foreground/20 backdrop-blur-sm" onClick={() => setOpen(false)}>
           <div
             className="mx-auto w-full max-w-md animate-scale-in rounded-t-3xl bg-card p-5 pb-8"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Header */}
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-display text-lg text-foreground">Quick Log</h3>
               <button onClick={() => setOpen(false)} className="rounded-full p-1.5 text-muted-foreground hover:bg-muted">
@@ -52,6 +53,7 @@ export function QuickLog() {
               </button>
             </div>
 
+            {/* Category picker */}
             <div className="mb-4 flex flex-wrap gap-2">
               {logCategories.map((cat) => (
                 <button
@@ -69,6 +71,7 @@ export function QuickLog() {
               ))}
             </div>
 
+            {/* Input */}
             <div className="flex gap-2">
               <input
                 ref={inputRef}
@@ -80,7 +83,7 @@ export function QuickLog() {
               />
               <button
                 onClick={submit}
-                disabled={!text.trim() || submitting}
+                disabled={!text.trim()}
                 className="rounded-xl bg-primary px-4 py-2.5 text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
               >
                 <Send className="h-4 w-4" />

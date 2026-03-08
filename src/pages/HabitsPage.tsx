@@ -1,32 +1,50 @@
 import { useState } from "react";
 import { Plus, Check, Trash2, Target } from "lucide-react";
-import { useHabits } from "@/hooks/useHabits";
-import { useDailyData } from "@/hooks/useDailyData";
-import { getTodayKey, calculateScore } from "@/lib/solo-utils";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+import {
+  getTodayKey,
+  emptyDay,
+  calculateScore,
+  type SoloData,
+  type Habit,
+} from "@/lib/solo-utils";
 
 const iconOptions = ["🎯", "📚", "💪", "🧘", "🏃", "🎨", "🎵", "💤", "🥗", "💧", "✏️", "🧹"];
 
 export default function HabitsPage() {
   const today = getTodayKey();
-  const { habits, addHabit, removeHabit } = useHabits();
-  const { dayData, updateDay } = useDailyData(today);
+  const [data, setData] = useLocalStorage<SoloData>("solo-data", {});
+  const [habits, setHabits] = useLocalStorage<Habit[]>("solo-habits", []);
   const [newName, setNewName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("🎯");
   const [showAdd, setShowAdd] = useState(false);
 
-  const toggleHabit = async (id: string) => {
-    const current = dayData.habits_done.includes(id)
-      ? dayData.habits_done.filter((h) => h !== id)
-      : [...dayData.habits_done, id];
-    const newScore = calculateScore({ ...dayData, habits_done: current }, habits.length);
-    await updateDay({ ...dayData, habits_done: current, score: newScore });
+  const dayData = data[today] || emptyDay();
+
+  const toggleHabit = (id: string) => {
+    const current = dayData.habits.includes(id)
+      ? dayData.habits.filter((h) => h !== id)
+      : [...dayData.habits, id];
+    const updated = { ...dayData, habits: current };
+    updated.score = calculateScore(updated, habits.length);
+    setData({ ...data, [today]: updated });
   };
 
-  const handleAddHabit = async () => {
+  const addHabit = () => {
     if (!newName.trim()) return;
-    await addHabit({ name: newName.trim(), icon: selectedIcon });
+    const habit: Habit = {
+      id: `habit-${Date.now()}`,
+      name: newName.trim(),
+      icon: selectedIcon,
+      createdAt: today,
+    };
+    setHabits([...habits, habit]);
     setNewName("");
     setShowAdd(false);
+  };
+
+  const removeHabit = (id: string) => {
+    setHabits(habits.filter((h) => h.id !== id));
   };
 
   return (
@@ -49,7 +67,7 @@ export default function HabitsPage() {
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddHabit()}
+            onKeyDown={(e) => e.key === "Enter" && addHabit()}
             placeholder="Habit name..."
             className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
@@ -67,7 +85,7 @@ export default function HabitsPage() {
             ))}
           </div>
           <button
-            onClick={handleAddHabit}
+            onClick={addHabit}
             disabled={!newName.trim()}
             className="w-full rounded-xl bg-primary py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
@@ -83,7 +101,7 @@ export default function HabitsPage() {
       ) : (
         <div className="space-y-2">
           {habits.map((habit) => {
-            const done = dayData.habits_done.includes(habit.id);
+            const done = dayData.habits.includes(habit.id);
             return (
               <div
                 key={habit.id}
@@ -118,7 +136,7 @@ export default function HabitsPage() {
       )}
 
       <p className="text-center text-xs text-muted-foreground">
-        {dayData.habits_done.length}/{habits.length} completed today
+        {dayData.habits.length}/{habits.length} completed today
       </p>
     </div>
   );

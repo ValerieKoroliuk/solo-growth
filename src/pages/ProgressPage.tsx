@@ -1,29 +1,38 @@
 import { BarChart3, Flame, Trophy, TrendingUp } from "lucide-react";
-import { useHabits } from "@/hooks/useHabits";
-import { useDailyData, useDailyDataRange } from "@/hooks/useDailyData";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { SoloScoreRing } from "@/components/SoloScoreRing";
-import { getTodayKey, getWeekDates, getDayLabel, calculateScore, getStreak, emptyDay } from "@/lib/solo-utils";
+import {
+  getTodayKey,
+  getWeekDates,
+  getDayLabel,
+  emptyDay,
+  getStreak,
+  calculateScore,
+  type SoloData,
+  type Habit,
+} from "@/lib/solo-utils";
 
 export default function ProgressPage() {
   const today = getTodayKey();
-  const { habits } = useHabits();
-  const { dayData: todayData } = useDailyData(today);
-  const { data: rangeData } = useDailyDataRange();
+  const [data] = useLocalStorage<SoloData>("solo-data", {});
+  const [habits] = useLocalStorage<Habit[]>("solo-habits", []);
 
-  const allData = rangeData ?? {};
   const weekDates = getWeekDates();
-  const streak = getStreak(allData);
+  const streak = getStreak(data, habits);
+  const todayData = data[today] || emptyDay();
   const todayScore = calculateScore(todayData, habits.length);
 
+  // Weekly stats
   const weekScores = weekDates.map((d) => {
-    const day = allData[d] || emptyDay();
+    const day = data[d] || emptyDay();
     return calculateScore(day, habits.length);
   });
   const weekAvg = weekScores.length > 0 ? Math.round(weekScores.reduce((a, b) => a + b, 0) / weekScores.length) : 0;
   const maxScore = Math.max(...weekScores, 1);
 
-  const weekHabits = weekDates.reduce((acc, d) => acc + (allData[d]?.habits_done.length || 0), 0);
-  const weekCheckins = weekDates.reduce((acc, d) => acc + (allData[d]?.checkins.length || 0), 0);
+  // Total completed habits this week
+  const weekHabits = weekDates.reduce((acc, d) => acc + (data[d]?.habits.length || 0), 0);
+  const weekCheckins = weekDates.reduce((acc, d) => acc + (data[d]?.checkins.length || 0), 0);
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -32,6 +41,7 @@ export default function ProgressPage() {
         Progress
       </h2>
 
+      {/* Score + Streak */}
       <div className="flex items-center justify-around">
         <SoloScoreRing score={todayScore} size={100} />
         <div className="flex flex-col items-center gap-1">
@@ -41,6 +51,7 @@ export default function ProgressPage() {
         </div>
       </div>
 
+      {/* Stats row */}
       <div className="grid grid-cols-3 gap-2">
         {[
           { icon: Trophy, label: "Habits Done", value: weekHabits, sub: "this week" },
@@ -55,6 +66,7 @@ export default function ProgressPage() {
         ))}
       </div>
 
+      {/* Weekly bar chart */}
       <div>
         <h3 className="mb-3 text-sm font-semibold text-foreground">Weekly Scores</h3>
         <div className="flex items-end justify-between gap-1.5" style={{ height: 120 }}>
@@ -65,10 +77,16 @@ export default function ProgressPage() {
               <div key={d} className="flex flex-1 flex-col items-center gap-1">
                 <span className="text-[10px] font-medium text-muted-foreground">{weekScores[i]}</span>
                 <div
-                  className={`w-full rounded-t-lg transition-all duration-500 ${isToday ? "bg-primary" : "bg-primary/30"}`}
+                  className={`w-full rounded-t-lg transition-all duration-500 ${
+                    isToday ? "bg-primary" : "bg-primary/30"
+                  }`}
                   style={{ height: `${Math.max(height, 4)}%` }}
                 />
-                <span className={`text-[10px] font-medium ${isToday ? "text-primary" : "text-muted-foreground"}`}>
+                <span
+                  className={`text-[10px] font-medium ${
+                    isToday ? "text-primary" : "text-muted-foreground"
+                  }`}
+                >
                   {getDayLabel(d)}
                 </span>
               </div>

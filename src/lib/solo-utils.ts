@@ -1,11 +1,3 @@
-// Score constants
-export const CHECKIN_POINTS = 15;
-export const MAX_CHECKIN_SCORE = 40;
-export const MAX_HABIT_SCORE = 40;
-export const JOURNAL_FULL_SCORE = 20;
-export const JOURNAL_PARTIAL_SCORE = 10;
-export const JOURNAL_FULL_THRESHOLD = 10; // characters
-
 export function getTodayKey() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -27,29 +19,34 @@ export function getDayLabel(dateStr: string): string {
   return d.toLocaleDateString("en", { weekday: "short" });
 }
 
+export interface Habit {
+  id: string;
+  name: string;
+  icon: string;
+  createdAt: string;
+}
+
 export interface DayData {
   checkins: string[];
-  habits_done: string[];
+  habits: string[]; // completed habit ids
   journal: string;
   score: number;
 }
 
+export type SoloData = Record<string, DayData>;
+
 export function emptyDay(): DayData {
-  return { checkins: [], habits_done: [], journal: "", score: 0 };
+  return { checkins: [], habits: [], journal: "", score: 0 };
 }
 
-export function calculateScore(day: { checkins: string[]; habits_done: string[]; journal: string }, totalHabits: number): number {
-  const checkinScore = Math.min(day.checkins.length * CHECKIN_POINTS, MAX_CHECKIN_SCORE);
-  const habitScore = totalHabits > 0 ? (day.habits_done.length / totalHabits) * MAX_HABIT_SCORE : 0;
-  const journalScore = day.journal.trim().length > JOURNAL_FULL_THRESHOLD
-    ? JOURNAL_FULL_SCORE
-    : day.journal.trim().length > 0
-      ? JOURNAL_PARTIAL_SCORE
-      : 0;
+export function calculateScore(day: DayData, totalHabits: number): number {
+  const checkinScore = Math.min(day.checkins.length * 15, 40);
+  const habitScore = totalHabits > 0 ? (day.habits.length / totalHabits) * 40 : 0;
+  const journalScore = day.journal.trim().length > 10 ? 20 : day.journal.trim().length > 0 ? 10 : 0;
   return Math.round(Math.min(checkinScore + habitScore + journalScore, 100));
 }
 
-export function getStreak(data: Record<string, DayData>): number {
+export function getStreak(data: SoloData, habits: Habit[]): number {
   let streak = 0;
   const today = new Date();
   for (let i = 0; i < 365; i++) {
@@ -57,7 +54,7 @@ export function getStreak(data: Record<string, DayData>): number {
     d.setDate(today.getDate() - i);
     const key = d.toISOString().slice(0, 10);
     const day = data[key];
-    if (day && (day.checkins.length > 0 || day.habits_done.length > 0 || day.journal.trim())) {
+    if (day && (day.checkins.length > 0 || day.habits.length > 0 || day.journal.trim())) {
       streak++;
     } else if (i > 0) {
       break;
@@ -79,6 +76,13 @@ const motivationalQuotes = [
 export function getQuote(): string {
   const idx = new Date().getDate() % motivationalQuotes.length;
   return motivationalQuotes[idx];
+}
+
+export interface LogEntry {
+  id: string;
+  category: LogCategory;
+  text: string;
+  timestamp: string; // ISO string
 }
 
 export type LogCategory =
