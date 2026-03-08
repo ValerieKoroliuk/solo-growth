@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Check, Plus, Sparkles, MessageCircle, Send, Lightbulb, Zap, Globe } from "lucide-react";
+import { Check, Plus, Sparkles, MessageCircle, Send, Lightbulb, Zap, Globe, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAICoach } from "@/hooks/useAICoach";
 import { useInsights } from "@/hooks/useInsights";
