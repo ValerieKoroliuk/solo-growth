@@ -14,6 +14,7 @@ import {
   type Habit,
 } from "@/lib/solo-utils";
 import { type CaptureItem, captureTypeConfig } from "@/lib/capture-utils";
+import { type Goal, daysLeft } from "@/lib/list-utils";
 
 const defaultCheckins = [
   { id: "study", label: "Studied", emoji: "📚" },
