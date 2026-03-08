@@ -77,3 +77,35 @@ export function getQuote(): string {
   const idx = new Date().getDate() % motivationalQuotes.length;
   return motivationalQuotes[idx];
 }
+
+export interface LogEntry {
+  id: string;
+  category: LogCategory;
+  text: string;
+  timestamp: string; // ISO string
+}
+
+export type LogCategory =
+  | "habit"
+  | "idea"
+  | "note"
+  | "task"
+  | "mood"
+  | "workout"
+  | "learning"
+  | "progress";
+
+export const logCategories: { id: LogCategory; label: string; emoji: string }[] = [
+  { id: "habit", label: "Habit", emoji: "🎯" },
+  { id: "learning", label: "Learning", emoji: "📚" },
+  { id: "idea", label: "Idea", emoji: "💡" },
+  { id: "workout", label: "Workout", emoji: "🏋️" },
+  { id: "mood", label: "Mood", emoji: "😊" },
+  { id: "note", label: "Note", emoji: "📝" },
+  { id: "task", label: "Task", emoji: "✅" },
+  { id: "progress", label: "Progress", emoji: "📈" },
+];
+
+export function getCategoryMeta(cat: LogCategory) {
+  return logCategories.find((c) => c.id === cat) || logCategories[5]; // default note
+}
