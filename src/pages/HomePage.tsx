@@ -28,6 +28,7 @@ export default function HomePage() {
   const today = getTodayKey();
   const [data, setData] = useLocalStorage<SoloData>("solo-data", {});
   const [habits] = useLocalStorage<Habit[]>("solo-habits", []);
+  const [captures] = useLocalStorage<CaptureItem[]>("solo-captures", []);
   const [customInput, setCustomInput] = useState("");
   const [chatInput, setChatInput] = useState("");
   const [showChat, setShowChat] = useState(false);
