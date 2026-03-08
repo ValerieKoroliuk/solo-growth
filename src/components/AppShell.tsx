@@ -22,6 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="mx-auto max-w-md px-4 py-4">{children}</main>
+      <ScreenshotCapture />
       <QuickLog />
       <BottomNav />
     </div>

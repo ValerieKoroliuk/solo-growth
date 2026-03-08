@@ -213,6 +213,33 @@ export default function HomePage() {
           </button>
         </div>
       </div>
+
+      {/* Insights link */}
+      {insightsData?.daily_focus && (
+        <Link to="/insights" className="flex items-center justify-center gap-1 text-xs font-medium text-primary hover:underline">
+          ✨ Daily Insights <ArrowRight className="h-3 w-3" />
+        </Link>
+      )}
+
+      {/* Recent Captures */}
+      {captures.length > 0 && (
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">Recent Captures</h3>
+            <Link to="/collections" className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+              View all <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {captures.slice(0, 3).map((cap) => (
+              <div key={cap.id} className="solo-card flex min-w-[140px] shrink-0 items-center gap-2 py-3 px-3">
+                <span className="text-base">{captureTypeConfig[cap.type]?.emoji}</span>
+                <span className="truncate text-xs font-medium text-foreground">{cap.title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
