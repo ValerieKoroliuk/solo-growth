@@ -128,6 +128,36 @@ export function ScreenshotCapture() {
       setHabits((prev) => [...prev, newHabit]);
     }
 
+    // Auto-add to lists based on action
+    try {
+      const rawLists = window.localStorage.getItem("solo-lists");
+      if (rawLists) {
+        const soloLists = JSON.parse(rawLists);
+        let targetList = null;
+        let listName = "";
+        if (result.action === "want_to_read") {
+          targetList = soloLists.find((l: any) => l.id === "list-books");
+          listName = "Books to Read";
+        } else if (result.action === "want_to_watch") {
+          targetList = soloLists.find((l: any) => l.id === "list-movies");
+          listName = "Movies to Watch";
+        } else if (result.action === "add_task") {
+          targetList = soloLists.find((l: any) => l.name === "Tasks");
+          if (!targetList) {
+            targetList = { id: `list-${Date.now()}`, name: "Tasks", icon: "✅", color: "orange", items: [], created_at: now };
+            soloLists.push(targetList);
+          }
+          listName = "Tasks";
+        }
+        if (targetList) {
+          const newItem = { id: `item-${Date.now()}`, text: result.title, note: result.description, checked: false, source: "capture", capture_id: id, goal_id: null, created_at: now };
+          targetList.items.push(newItem);
+          window.localStorage.setItem("solo-lists", JSON.stringify(soloLists));
+          toast.success(`Added to ${listName}`);
+        }
+      }
+    } catch { /* ignore */ }
+
     // Append to journal
     const today = getTodayKey();
     const dayData = data[today] || emptyDay();
