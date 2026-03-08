@@ -92,6 +92,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_tokens: {
+        Row: {
+          google_access_token: string | null
+          google_refresh_token: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          google_access_token?: string | null
+          google_refresh_token?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          google_access_token?: string | null
+          google_refresh_token?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
