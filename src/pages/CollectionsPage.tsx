@@ -38,7 +38,20 @@ const typeBadgeClass = (type: CaptureType) => {
 
 export default function CollectionsPage() {
   const [captures, setCaptures] = useLocalStorage<CaptureItem[]>("solo-captures", []);
+  const [lists, setLists] = useLocalStorage<SoloList[]>("solo-lists", defaultLists);
   const [filter, setFilter] = useState<CaptureType | "all">("all");
+  const [showListPicker, setShowListPicker] = useState<string | null>(null);
+
+  const addToList = (captureId: string, listId: string) => {
+    const cap = captures.find((c) => c.id === captureId);
+    if (!cap) return;
+    const item = createListItem(cap.title, "capture", captureId);
+    item.note = cap.description;
+    setLists((prev) => prev.map((l) => l.id === listId ? { ...l, items: [...l.items, item] } : l));
+    setShowListPicker(null);
+    const list = lists.find((l) => l.id === listId);
+    toast.success(`Added to ${list?.icon} ${list?.name}`);
+  };
 
   const otherTypes: CaptureType[] = ["note", "workout", "learning", "idea", "mood", "quote"];
   const filtered = captures.filter((c) => {
