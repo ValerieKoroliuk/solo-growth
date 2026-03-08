@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.daily-insights]
 verify_jwt = false
+
+[functions.parse-screenshot]
+verify_jwt = false

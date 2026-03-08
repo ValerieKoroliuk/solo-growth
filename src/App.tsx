@@ -6,6 +6,7 @@ import JournalPage from "./pages/JournalPage";
 import TimelinePage from "./pages/TimelinePage";
 import InsightsPage from "./pages/InsightsPage";
 import ProgressPage from "./pages/ProgressPage";
+import CollectionsPage from "./pages/CollectionsPage";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
@@ -18,6 +19,7 @@ const App = () => (
         <Route path="/timeline" element={<TimelinePage />} />
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/collections" element={<CollectionsPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AppShell>

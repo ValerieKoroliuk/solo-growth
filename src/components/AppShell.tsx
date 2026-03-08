@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { BottomNav } from "./BottomNav";
 import { QuickLog } from "./QuickLog";
+import { ScreenshotCapture } from "./ScreenshotCapture";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 
@@ -21,6 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       <main className="mx-auto max-w-md px-4 py-4">{children}</main>
+      <ScreenshotCapture />
       <QuickLog />
       <BottomNav />
     </div>
