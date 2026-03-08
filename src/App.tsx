@@ -3,6 +3,7 @@ import { AppShell } from "./components/AppShell";
 import HomePage from "./pages/HomePage";
 import HabitsPage from "./pages/HabitsPage";
 import JournalPage from "./pages/JournalPage";
+import TimelinePage from "./pages/TimelinePage";
 import InsightsPage from "./pages/InsightsPage";
 import ProgressPage from "./pages/ProgressPage";
 import NotFound from "./pages/NotFound";
@@ -14,6 +15,7 @@ const App = () => (
         <Route path="/" element={<HomePage />} />
         <Route path="/habits" element={<HabitsPage />} />
         <Route path="/journal" element={<JournalPage />} />
+        <Route path="/timeline" element={<TimelinePage />} />
         <Route path="/insights" element={<InsightsPage />} />
         <Route path="/progress" element={<ProgressPage />} />
         <Route path="*" element={<NotFound />} />

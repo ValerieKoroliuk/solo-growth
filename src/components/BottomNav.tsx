@@ -1,10 +1,10 @@
-import { Home, Target, BookOpen, Sparkles, BarChart3 } from "lucide-react";
+import { Home, Target, BookOpen, Clock, Sparkles, BarChart3 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 const links = [
   { to: "/", icon: Home, label: "Home" },
   { to: "/habits", icon: Target, label: "Habits" },
-  { to: "/journal", icon: BookOpen, label: "Journal" },
+  { to: "/timeline", icon: Clock, label: "Timeline" },
   { to: "/insights", icon: Sparkles, label: "Insights" },
   { to: "/progress", icon: BarChart3, label: "Progress" },
 ];
