@@ -13,6 +13,7 @@ import {
   type SoloData,
   type Habit,
 } from "@/lib/solo-utils";
+import { type CaptureItem, captureTypeConfig } from "@/lib/capture-utils";
 
 const defaultCheckins = [
   { id: "study", label: "Studied", emoji: "📚" },
