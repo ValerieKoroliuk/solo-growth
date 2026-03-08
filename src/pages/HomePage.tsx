@@ -240,6 +240,11 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      {/* Quiet reminder */}
+      <p className="pt-4 pb-2 text-center text-xs italic text-muted-foreground/50">
+        Everything you do in private is visible.
+      </p>
     </div>
   );
 }
