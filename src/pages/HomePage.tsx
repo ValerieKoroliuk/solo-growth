@@ -14,6 +14,7 @@ import {
   type Habit,
 } from "@/lib/solo-utils";
 import { type CaptureItem, captureTypeConfig } from "@/lib/capture-utils";
+import { type Goal, daysLeft } from "@/lib/list-utils";
 
 const defaultCheckins = [
   { id: "study", label: "Studied", emoji: "📚" },
@@ -29,6 +30,8 @@ export default function HomePage() {
   const [data, setData] = useLocalStorage<SoloData>("solo-data", {});
   const [habits] = useLocalStorage<Habit[]>("solo-habits", []);
   const [captures] = useLocalStorage<CaptureItem[]>("solo-captures", []);
+  const [goals] = useLocalStorage<Goal[]>("solo-goals", []);
+  const activeGoals = goals.filter((g) => g.status === "active").slice(0, 2);
   const [customInput, setCustomInput] = useState("");
   const [chatInput, setChatInput] = useState("");
   const [showChat, setShowChat] = useState(false);
@@ -219,6 +222,29 @@ export default function HomePage() {
         <Link to="/insights" className="flex items-center justify-center gap-1 text-xs font-medium text-primary hover:underline">
           ✨ Daily Insights <ArrowRight className="h-3 w-3" />
         </Link>
+      )}
+
+      {/* Active Goals */}
+      {activeGoals.length > 0 && (
+        <div>
+          <div className="mb-2 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-foreground">🎯 Active Goals</h3>
+            <Link to="/lists" className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+              See all <ArrowRight className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {activeGoals.map((goal) => (
+              <div key={goal.id} className="solo-card flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{goal.title}</p>
+                  <div className="mt-1.5 h-1.5 w-full rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${goal.progress}%` }} /></div>
+                </div>
+                <span className="shrink-0 text-[10px] text-muted-foreground">{daysLeft(goal.target_date)}d left</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Recent Captures */}
